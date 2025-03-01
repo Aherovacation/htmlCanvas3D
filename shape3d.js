@@ -9,17 +9,17 @@ class Vertex {
 }
 
 // A vertex is simply an array of three numbers each representing an x, y, and z coordinate i.e [x,y,z]
-class VertexStorage extends Storage {
+class VertexStorage {
   constructor() {
-    super();
+    
+    this.elements = [];
 
     this.addVertices = vertexArray => {
-      let indices = [];
+      let index = vertexArray.length;
       for(let i = 0; i < vertexArray.length; i++){
-        indices.push(this.elements.length);
         this.elements.push(vertexArray[i]);
       }
-      return indices;
+      return index;
     }
     
   }
@@ -28,9 +28,10 @@ class VertexStorage extends Storage {
 let vertexStorage = new VertexStorage();
 
 // A line is an array of two vertices i.e. [v1,v2] or [[x1,y1,z1],[x2,y2,z2]] (truely the data is [[index to v1],[index to v2]])
-class LineStorage extends Storage {
+class LineStorage {
   constructor() {
-    super();
+    
+    this.elements = [];
 
     this.addLines = vertexIndices => {
       let indices = [];
@@ -46,15 +47,15 @@ class LineStorage extends Storage {
 let lineStorage = new LineStorage();
 
 // Shapes are any number of lines and vertices
-class ShapeStorage extends Storage {
+class ShapeStorage {
   constructor() {
-    super();
+    this.elements = [];
   }
 }
 
 let shapeStorage = new ShapeStorage();
 
-class Shape {
+class Object3D {
   constructor() {
     this.position = [0, 0, 0];
     this.rotation = [
@@ -69,27 +70,23 @@ class Shape {
 
     this.translate = (x,y,z) => {this.translateX(x); this.translateY(y); this.translateZ(z);}
 
-    this.rotateX = x => {}
-    this.rotateY = y => {}
-    this.rotateZ = z => {}
+    // this.rotateX = x => {}
+    // this.rotateY = y => {}
+    // this.rotateZ = z => {}
 
     this.shapeIndex = shapeStorage.elements.length;
     shapeStorage.elements.push(this);
+    
   }
 }
 
-class Triangle extends Shape {
-
-  static numTriangles = 0;
+class Triangle extends Object3D {
 
   constructor(v1 = [10,0,0], v2 = [12,2,0], v3 = [10,0,2]){
+
     super();
 
-    this.id = `t` + Triangle.numTriangles;
-
-    Triangle.numTriangles++;
-
-    this.vertexIndices = vertexStorage.addVertices([v1,v2,v3]);
+    this.vertexIndex = vertexStorage.addVertices([v1,v2,v3]);
     this.lineIndices = lineStorage.addLines(this.vertexIndices);
 
     this.getVertex = index => {return vertexStorage.elements[this.vertexIndices[index]]};
