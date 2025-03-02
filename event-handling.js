@@ -1,11 +1,5 @@
-let isLocked = false;
+function setupEvents(context2d, canvas, eventQueue){
 
-let eventQueue = {
-  locked: false,
-  queue: [],
-}
-
-function setupEvents(canvas){
   window.addEventListener('keydown', (event) => {
     if(!event.repeat && !eventQueue.locked){eventQueue.queue.push(event);}
   });
@@ -20,9 +14,7 @@ function setupEvents(canvas){
   })
 }
 
-function handleEvents(eventQueue, canvas){
-
-  //eventQueue.locked = true;
+function handleEvents(eventQueue, deltaTime){
 
   for(let event of eventQueue.queue){
 
@@ -31,22 +23,22 @@ function handleEvents(eventQueue, canvas){
         
         switch(event.code){
           case 'KeyW':
-            camera.movementVector[0] = 1;
+            eventQueue.state[0] = true;
             break;
           case 'KeyS':
-            camera.movementVector[1] = 1;
+            eventQueue.state[1] = true;
             break;
           case 'KeyA':
-            camera.movementVector[2] = 1;
+            eventQueue.state[2] = true;
             break;
           case 'KeyD':
-            camera.movementVector[3] = 1;
+            eventQueue.state[3] = true;
             break;
           case 'KeyQ':
-            camera.cameraOmega[0] = 1;
+            eventQueue.state[4] = true;
             break;
           case 'KeyE':
-            camera.cameraOmega[1] = 1;
+            eventQueue.state[5] = true;
             break;
           case 'Escape':
             break;
@@ -59,22 +51,22 @@ function handleEvents(eventQueue, canvas){
 
         switch(event.code){
           case 'KeyW':
-            camera.movementVector[0] = 0;
+            eventQueue.state[0] = false;
             break;
           case 'KeyS':
-            camera.movementVector[1] = 0;
+            eventQueue.state[1] = false;
             break;
           case 'KeyA':
-            camera.movementVector[2] = 0;
+            eventQueue.state[2] = false;
             break;
           case 'KeyD':
-            camera.movementVector[3] = 0;
+            eventQueue.state[3] = false;
             break;
           case 'KeyQ':
-            camera.cameraOmega[0] = 0;
+            eventQueue.state[4] = false;
             break;
           case 'KeyE':
-            camera.cameraOmega[1] = 0;
+            eventQueue.state[5] = false;
             break;
           default:
             break;
@@ -82,7 +74,6 @@ function handleEvents(eventQueue, canvas){
 
         break;
       case 'mousemove':
-        //console.log(event.movementX);
         break;
       default:
         break;
@@ -90,7 +81,5 @@ function handleEvents(eventQueue, canvas){
 
 
   }
-
-  //eventQueue.locked = false;
 
 }

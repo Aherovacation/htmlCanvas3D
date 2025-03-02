@@ -1,77 +1,3 @@
-class Camera {
-  constructor() {
-
-    this.position = [0,0,0];
-
-    this.angleFromX = 0;
-
-    this.cameraSpeed = 0.01;
-    this.cameraTurnSpeed = 0.1;
-
-    this.cameraOmega = [0,0];
-    this.movementVector = [0, 0, 0, 0];
-    //this.rotationVector = [0,0,0]; I will be only considering rotations around the z-axis for now
-    this.zRotation = 0;
-
-    this.viewPlaneDistance = 10;
-    this.viewPlaneCutoffDistance = 20;
-    this.viewPlaneWidth = 10;
-    this.viewPlaneHeight = 10;
-
-    this.coneAngle = Math.tan(this.viewPlaneWidth / this.viewPlaneDistance / 2) * 180 / Math.PI;
-
-    this.translate = (dx, dy, dz) => { this.position[0] += dx;  this.position[1] += dy; this.position[2] += dz;};
-
-    this.moveCamera = (deltaTime) => {
-
-      let moveVector = [this.movementVector[0] - this.movementVector[1], this.movementVector[2] - this.movementVector[3], 0];
-
-      let moveVectorLength = Math.sqrt(moveVector[0] * moveVector[0] + moveVector[1] * moveVector[1] + moveVector[2] * moveVector[2]);
-
-      if(moveVectorLength > 0){
-
-        let distance = deltaTime * this.cameraSpeed;
-
-        let angle = camera.angleFromX * Math.PI / 180;
-
-        let cosResult = Math.cos(angle);
-        let sinResult = Math.sin(angle);
-
-        let xResult = distance * moveVector[0] / moveVectorLength;
-        let yResult = distance * moveVector[1] / moveVectorLength;
-
-        this.position[0] += xResult * cosResult - yResult * sinResult;
-        this.position[1] += yResult * cosResult + xResult * sinResult
-        this.position[2] += distance * moveVector[2] / moveVectorLength;
-      }
-
-    }
-
-    this.turnCamera = (deltaTime) => {
-
-      this.angleFromX += (this.cameraOmega[0] - this.cameraOmega[1]) * this.cameraTurnSpeed * deltaTime;
-
-    }
-
-    this.moveForward = (deltaTime) => { 
-
-      let angle = camera.angleFromX * Math.PI / 180;
-
-      let cosResult = Math.cos(angle);
-      let sinResult = Math.sin(angle);
-
-      let distance = deltaTime * this.cameraSpeed;
-
-      this.position[0] += (distance*cosResult);
-      this.position[1] += (distance*sinResult);
-
-    };
- 
-  }
-}
-
-let camera = new Camera();
-
 function multiplyConstant(c, v){
   return [c * v[0], c * v[1], c * v[2]];
 }
@@ -119,39 +45,38 @@ function cullVertices() {
   return validVertices;
 }
 
-function convertToCameraFrame(vertex) {
+let printed = 0;
 
-  let result = [];
+function convertVertexToCameraFrame(vertex) {
 
-  let x = vertex[0] - camera.position[0];
-  let y = vertex[1] - camera.position[1];
-  let z = vertex[2] - camera.position[2];
+  let x = vertex.position[0] - camera.position[0];
+  let y = vertex.position[1] - camera.position[1];
+  let z = vertex.position[2] - camera.position[2];
 
-  let angle = camera.angleFromX * Math.PI / 180;
+  let angle = Math.acos(camera.orientation[0]);
 
   let cosResult = Math.cos(angle);
   let sinResult = Math.sin(angle);
-  
-  result.push((x*cosResult + y*sinResult));
-  result.push((y*cosResult - x*sinResult));
-  result.push(z);
 
-  return result;
+  let color = vertex.color;
+
+  return new Vertex([(x*cosResult + y*sinResult), (y*cosResult - x*sinResult), z],color);
 
 }
+
+
 
 function projectVertex(vertex) {
 
-  let result = [camera.viewPlaneDistance * (vertex[1] / vertex[0]), camera.viewPlaneDistance * (vertex[2] / vertex[0])];
-
-  return result;
+  return new Vertex2D([camera.viewPlaneDistances[0] * (vertex.position[1] / vertex.position[0]), camera.viewPlaneDistances[0] * (vertex.position[2] / vertex.position[0])], vertex.color);
 
 }
 
-function getScreenCoordinate(screenWidth, screenHeight, y, z) {
+function getScreenCoordinate(vertex, canvasWidth, canvasHeight) {
 
-  let result = [screenWidth * (1/2 - y/camera.viewPlaneWidth), screenHeight * (1/2 - z/camera.viewPlaneHeight)];
+  let xCoordinate = canvasWidth * ( 0.5 - vertex.position[0] / camera.getViewPlaneWidth());
+  let yCoordinate = canvasHeight * ( 0.5 - vertex.position[1] / camera.getViewPlaneHeight());
 
-  return result;
+  return new Vertex2D([xCoordinate, yCoordinate], vertex.color);
 
 }
