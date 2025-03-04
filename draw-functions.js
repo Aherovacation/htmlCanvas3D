@@ -16,11 +16,11 @@ function drawTriangle(context, color, vertices){
 
 function drawVertex2D(context, vertex2D){
 
-  let vxr = vertex2D.position[0] + vertex2D.size/2;
-  let vxl = vertex2D.position[0] - vertex2D.size/2;
+  let vxr = vertex2D.x + vertex2D.size/2;
+  let vxl = vertex2D.x - vertex2D.size/2;
 
-  let vyb = vertex2D.position[1] + vertex2D.size/2;
-  let vyt = vertex2D.position[1] - vertex2D.size/2;
+  let vyb = vertex2D.y + vertex2D.size/2;
+  let vyt = vertex2D.y - vertex2D.size/2;
 
   let vertices = [
     [vxl, vyt],
@@ -37,5 +37,19 @@ function drawVertex2D(context, vertex2D){
   context.lineTo(...vertices[2]);
   context.lineTo(...vertices[3]);
   context.fill();
+
+}
+
+function drawLine(context, color, vertices){
+
+  context.strokeStyle = color;
+
+  v1 = vertices[0];
+  v2 = vertices[1];
+
+  context.beginPath();
+  context.moveTo(v1.x, v1.y);
+  context.lineTo(v2.x, v2.y);
+  context.stroke();
 
 }

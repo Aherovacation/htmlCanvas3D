@@ -1,85 +1,77 @@
-function setupEvents(context2d, canvas, eventQueue){
+function setupEvents(context2d, canvas, camera, eventStates){
+
+  window.addEventListener('resize', () => {
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    context2d.fillStyle = "green";
+    context2d.fillRect(0, 0, canvas.width, canvas.height);
+
+    camera.aspectRatio = canvas.width / canvas.height;
+
+  });
 
   window.addEventListener('keydown', (event) => {
-    if(!event.repeat && !eventQueue.locked){eventQueue.queue.push(event);}
-  });
-  window.addEventListener('keyup', (event) => {
-    if(!event.repeat && !eventQueue.locked){eventQueue.queue.push(event);}
-  });
-  window.addEventListener('mousemove', event => {
-    if(!event.repeat && !eventQueue.locked){eventQueue.queue.push(event);}
-  })
-  canvas.addEventListener('click', async () =>{
-    await canvas.requestPointerLock();
-  })
-}
 
-function handleEvents(eventQueue, deltaTime){
-
-  for(let event of eventQueue.queue){
-
-    switch(event.type){
-      case 'keydown':
-        
-        switch(event.code){
-          case 'KeyW':
-            eventQueue.state[0] = true;
-            break;
-          case 'KeyS':
-            eventQueue.state[1] = true;
-            break;
-          case 'KeyA':
-            eventQueue.state[2] = true;
-            break;
-          case 'KeyD':
-            eventQueue.state[3] = true;
-            break;
-          case 'KeyQ':
-            eventQueue.state[4] = true;
-            break;
-          case 'KeyE':
-            eventQueue.state[5] = true;
-            break;
-          case 'Escape':
-            break;
-          default:
-            break;
-        }
-
+    switch(event.code){
+      case 'KeyW':
+        if(!eventStates[0]) {eventStates[0] = true;};
         break;
-      case 'keyup':
-
-        switch(event.code){
-          case 'KeyW':
-            eventQueue.state[0] = false;
-            break;
-          case 'KeyS':
-            eventQueue.state[1] = false;
-            break;
-          case 'KeyA':
-            eventQueue.state[2] = false;
-            break;
-          case 'KeyD':
-            eventQueue.state[3] = false;
-            break;
-          case 'KeyQ':
-            eventQueue.state[4] = false;
-            break;
-          case 'KeyE':
-            eventQueue.state[5] = false;
-            break;
-          default:
-            break;
-        }
-
+      case 'KeyS':
+        if(!eventStates[1]) {eventStates[1] = true;};
         break;
-      case 'mousemove':
+      case 'KeyA':
+        if(!eventStates[2]) {eventStates[2] = true;};
+        break;
+      case 'KeyD':
+        if(!eventStates[3]) {eventStates[3] = true;};
+        break;
+      case 'KeyQ':
+        if(!eventStates[4]) {eventStates[4] = true;};
+        break;
+      case 'KeyE':
+        if(!eventStates[5]) {eventStates[5] = true;};
+        break;
+      case 'Escape':
         break;
       default:
         break;
     }
 
+  });
+  window.addEventListener('keyup', (event) => {
 
-  }
+    switch(event.code){
+      case 'KeyW':
+        if(eventStates[0]) {eventStates[0] = false;};
+        break;
+      case 'KeyS':
+        if(eventStates[1]) {eventStates[1] = false;};
+        break;
+      case 'KeyA':
+        if(eventStates[2]) {eventStates[2] = false;};
+        break;
+      case 'KeyD':
+        if(eventStates[3]) {eventStates[3] = false;};
+        break;
+      case 'KeyQ':
+        if(eventStates[4]) {eventStates[4] = false;};
+        break;
+      case 'KeyE':
+        if(eventStates[5]) {eventStates[5] = false;};
+        break;
+      default:
+        break;
+    }
+
+  });
+
+  return eventStates;
+}
+
+function handleEvents(eventStates, deltaTime){
+
+
 
 }

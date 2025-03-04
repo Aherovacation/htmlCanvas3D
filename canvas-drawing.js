@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  document.body.style.padding = '0px';
+  document.body.style.margin = '0px';
+
   main();
+
 });
 
 let moving = false;
@@ -25,123 +30,113 @@ function main(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  document.body.style.padding = '0px';
-  document.body.style.margin = '0px';
+  let camera = new Camera(canvas.width / canvas.height);
 
-  // window.addEventListener('resize', () => {
-  //   canvas.width = window.innerWidth;
-  //   canvas.height = window.innerHeight;
-  //   context2d.fillStyle = "green";
-  //   context2d.fillRect(0, 0, canvas.width, canvas.height);
-  //   drawVertex2D(context2d, screenCoordinates);
-  // });
+  eventStates = [false, false, false, false, false, false];
+  setupEvents(context2d, canvas, camera, eventStates);
 
-  //setupEvents(context2d, canvas, eventQueue);
+  let x = (camera.closeViewPlaneDistance + camera.farViewPlaneDistance) / 2;
 
-  // for(let i = 0; i < 1000; i++){
-  //   vertexStorage.vertices.push(new Vertex(
-  //     [5*Math.random(), 5*Math.random(), 5*Math.random()],
-  //     [255*Math.random(), 255*Math.random(), 255*Math.random()],
-  //     1,
-  //   ));
-  // }
-
-  timeSinceLastFrame = Date.now();
-
-  //setInterval(drawLoop, 0, context2d, canvas, eventQueue);
-
-  //setInterval(() => {console.log(accumulatedFrames); accumulatedFrames = 0;}, 1000);
+  let y = x * camera.tanWidthViewAngle;
 
   vertices = [
 
-    new Vertex([15,15,15]),
-    new Vertex([15,7.5,15]),
-    new Vertex([15,0,15]),
-    new Vertex([15,-7.5,15]),
-    new Vertex([15,-15,15]),
-
-    new Vertex([15,15,7.5]),
-    new Vertex([15,7.5,7.5]),
-    new Vertex([15,0,7.5]),
-    new Vertex([15,-7.5,7.5]),
-    new Vertex([15,-15,7.5]),
-
-    new Vertex([15,15,0]),
-    new Vertex([15,7.5,0]),
-    new Vertex([15,0,0]),
-    new Vertex([15,-7.5,0]),
-    new Vertex([15,-15,0]),
-
-    new Vertex([15,15,-7.5]),
-    new Vertex([15,7.5,-7.5]),
-    new Vertex([15,0,-7.5]),
-    new Vertex([15,-7.5,-7.5]),
-    new Vertex([15,-15,-7.5]),
-
-    new Vertex([15,15,-15]),
-    new Vertex([15,7.5,-15]),
-    new Vertex([15,0,-15]),
-    new Vertex([15,-7.5,-15]),
-    new Vertex([15,-15,-15]),
+    new Vertex3D([x,y,0]),
+    new Vertex3D([x,y/2,0]),
+    new Vertex3D([x,0,0]),
+    new Vertex3D([x,y/-2,0]),
+    new Vertex3D([x,-y,0]),
 
   ]
+
+  timeSinceLastFrame = Date.now();
+
+  setInterval(drawLoop, 0, context2d, canvas, vertices, camera, eventStates);
+
+}
+
+function drawLoop(context2d, canvas, vertices, camera, eventStates){
+
+  deltaTime = Date.now() - timeSinceLastFrame;
+
+  handleEvents(eventStates, deltaTime);
+
+  camera.update(deltaTime, eventStates);
 
   context2d.fillStyle = "green";
   context2d.fillRect(0, 0, canvas.width, canvas.height);
 
   for(let vertex of vertices){
-    let cameraFrame = convertVertexToCameraFrame(vertex);
-    console.log(cameraFrame);
-    let projectedVertex = projectVertex(cameraFrame);
-    console.log(projectedVertex);
-    let screenCoordinates = getScreenCoordinate(projectedVertex, canvas.width, canvas.height);
-    console.log(screenCoordinates);
+    let cameraFrame = convertVertexToCameraFrame(vertex, camera);
+    let projectedVertex = projectVertex(cameraFrame, camera);
+    let screenCoordinates = getScreenCoordinate(projectedVertex, canvas.width, canvas.height, camera);
     drawVertex2D(context2d, screenCoordinates);
   }
 
-}
+  timeSinceLastFrame = Date.now();
 
-let logged = false;
+  // Debugging code //
 
-function drawLoop(context2d, canvas, eventQueue){
+  // let base = new Vector2D([canvas.width/2, canvas.height/2]);
 
-  deltaTime = Date.now() - timeSinceLastFrame;
+  // drawLine(context2d, "blue", [base, new Vector2D([base.x, base.y - 100])]);
 
-  //handleEvents(eventQueue, deltaTime);
+  // drawLine(context2d, "red", [base, new Vector2D([base.x - 100, base.y])]);
 
-  // eventQueue.queue = [];
+  // drawLine(context2d, "black", [base, new Vector2D([base.x - 100*camera.orientation.y, base.y - 100*camera.orientation.x])]);
 
-  // camera.turnCamera(deltaTime);
+  // base.add(new Vector2D([100, 0]));
 
-  // camera.moveCamera(deltaTime);
+  // drawLine(context2d, "black", [base, new Vector2D([base.x, base.y - 100*camera.orientation.x])]);
 
-  // context2d.fillStyle = "green";
-  // context2d.fillRect(0, 0, canvas.width, canvas.height);
+  // base.add(new Vector2D([-100, 100]));
 
+  // drawLine(context2d, "black", [base, new Vector2D([base.x - 100*camera.orientation.y, base.y])]);
 
+  // base.add(new Vector2D([-200, -100]));
 
-  // // for( let vertex of vertexStorage.vertices){
-  // //   let cameraFrame = convertVertexToCameraFrame(vertex);
-  // //   let projectedVertex = projectVertex(cameraFrame);
-  // //   cameraFrame = null;
-  // //   screenCoordinates = getScreenCoordinate(projectedVertex, canvas.width, canvas.height);
-  // //   projectedVertex = null;
-  // //   context2d.fillStyle = screenCoordinates.color;
-  // //   context2d.fillRect(screenCoordinates.position[0] - 5, screenCoordinates.position[1] - 5, 10, 10);
-  // // }
- 
+  // context2d.fillStyle = 'blue';
 
-  // let cameraFrame = vertexStorage.vertices.map(vertex => convertVertexToCameraFrame(vertex));
-  // let projectedVertex = cameraFrame.map(vertex => projectVertex(vertex));
-  // let screenCoordinates = projectedVertex.map(vertex => getScreenCoordinate(vertex, canvas.width, canvas.height));
+  // context2d.beginPath();
+  // context2d.moveTo(base.x, base.y);
+  // context2d.lineTo(base.x + 50, base.y);
+  // context2d.lineTo(base.x + 50, base.y - 100*Math.acos(camera.orientation.x));
+  // context2d.lineTo(base.x, base.y - 100*Math.acos(camera.orientation.x));
+  // context2d.fill();
 
-  // screenCoordinates.map(vertex2d => {context2d.fillStyle = vertex2d.color; context2d.fillRect(vertex2d[0] - 5, vertex2d[1] - 5, 10, 10);});
+  // base.add(new Vector2D([-100, 0]));
 
-  // if(!logged) console.log(screenCoordinates);
-  // logged = true;
+  // context2d.fillStyle = 'red';
 
-  // timeSinceLastFrame = Date.now();
+  // context2d.beginPath();
+  // context2d.moveTo(base.x, base.y);
+  // context2d.lineTo(base.x + 50, base.y);
+  // context2d.lineTo(base.x + 50, base.y - 100*Math.acos(camera.orientation.y));
+  // context2d.lineTo(base.x, base.y - 100*Math.acos(camera.orientation.y));
+  // context2d.fill();
 
-  // accumulatedFrames++;
+  // base.add(new Vector2D([0, 100]));
+
+  // context2d.fillStyle = Math.acos(camera.orientation.y) > Math.PI/2 ? 'black' : 'red';
+
+  // context2d.beginPath();
+  // context2d.moveTo(base.x, base.y);
+  // context2d.lineTo(base.x + 50, base.y);
+  // context2d.lineTo(base.x + 50, base.y +50 );
+  // context2d.lineTo(base.x, base.y + 50);
+  // context2d.fill();
+
+  // base.add(new Vector2D([100, 0]));
+
+  // context2d.fillStyle = Math.acos(camera.orientation.x) > Math.PI/2 ? 'black' : 'red';
+
+  // context2d.beginPath();
+  // context2d.moveTo(base.x, base.y);
+  // context2d.lineTo(base.x + 50, base.y);
+  // context2d.lineTo(base.x + 50, base.y +50 );
+  // context2d.lineTo(base.x, base.y + 50);
+  // context2d.fill();
+
+  accumulatedFrames++;
 
 }
